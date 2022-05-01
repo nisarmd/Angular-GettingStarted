@@ -1,17 +1,54 @@
-import { Component, OnInit } from '@angular/core';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
+import {
+  IProductService,
+  ProductService,
+  ProductServiceFlatFile,
+} from '../services/product.service';
 import { Product } from './products.model';
 
 @Component({
   selector: 'product-list',
   templateUrl: './product-list.component.html',
   styleUrls: ['./products-list.component.css'],
+  providers: [{ provide: 'IProductService', useClass: ProductService }],
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
+  constructor(
+    @Inject('IProductService') private productService: IProductService
+  ) {}
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+  // error message emitted from observable
+  errorMessage: string = '';
+
+  //
+  //
+  sub!: Subscription;
+
+  // Products
+  products: any = [];
+
   ngOnInit(): void {
     // Used for any initialization like some backend calls onInit of this component
     console.log('This is onInit lifecycle hook from angular');
-    this.listFilter = 'cart';
+    if (this.productService instanceof ProductServiceFlatFile) {
+      this.filteredProducts = this.products =
+        this.productService.getProducts() as Product[];
+    } else {
+      this.sub = (
+        this.productService.getProducts() as Observable<Product[]>
+      ).subscribe({
+        next: (products) => (this.filteredProducts = this.products = products),
+        error: (err) => (this.errorMessage = err),
+      });
+    }
   }
+
   // Page Title | One way Binding
   pageTitle: string = 'Product List';
 
@@ -33,7 +70,7 @@ export class ProductListComponent implements OnInit {
   private _listFilter: string = '';
 
   //filering products
-  filteredProducts: Product[] = [];
+  filteredProducts: any = [];
 
   getProductsByName = (prodName: string): Product[] =>
     this.products.filter((x: Product) =>
@@ -51,31 +88,7 @@ export class ProductListComponent implements OnInit {
   }
 
   // display stars selected from child component
-  starSelected: string = ''; 
-
-  // Products
-  products: Product[] = [
-    {
-      productId: 1,
-      productName: 'Leaf Rake',
-      productCode: 'GDN-0011',
-      releaseDate: 'March 19, 2021',
-      description: 'Leaf rake with 48-inch wooden handle.',
-      price: 19.95,
-      starRating: 3.2,
-      imageUrl: 'assets/images/leaf_rake.png',
-    },
-    {
-      productId: 2,
-      productName: 'Garden Cart',
-      productCode: 'GDN-0023',
-      releaseDate: 'March 18, 2021',
-      description: '15 gallon capacity rolling garden cart',
-      price: 32.99,
-      starRating: 4.2,
-      imageUrl: 'assets/images/garden_cart.png',
-    },
-  ];
+  starSelected: string = '';
 
   onStarsClicked(message: string): void {
     this.starSelected = message;
