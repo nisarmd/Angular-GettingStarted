@@ -1,15 +1,20 @@
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { ProductListComponent } from './products/product-list.component';
+import { ConvertToSpacePipe } from './products/product-list.pipe';
+import { StarComponent } from './shared/star.component';
 
 @NgModule({
   declarations: [
-    AppComponent, ProductListComponent
+    AppComponent, ProductListComponent, ConvertToSpacePipe,
+    StarComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule
   ],
   bootstrap: [AppComponent]
 })

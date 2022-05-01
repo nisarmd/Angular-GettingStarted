@@ -1,25 +1,27 @@
 <div class="card">
   <div class="card-header">
-    {{ pageTitle }}
+    {{ pageTitle + starSelected ? starSelected : ''}}
   </div>
   <div class="card-body">
     <div class="row">
       <div class="col-md-2">Filter by:</div>
       <div class="col-md-4">
-        <input type="text" />
+        <input type="text" [(ngModel)]="listFilter" />
       </div>
     </div>
     <div cass="row">
       <div class="col-md-6">
-        <h4>Filtered by:</h4>
+        <h4>Filtered by: {{ listFilter }}</h4>
       </div>
     </div>
     <div class="table-responsive">
       <table class="table" *ngIf="products.length">
-        <thead>
+        <thead class="product-table-header">
           <tr>
             <th>
-              <button class="btn btn-primary">Show Image</button>
+              <button class="btn btn-primary" (click)="toggleImage()">
+                {{ showImage ? "Hide" : "Show" }} Image
+              </button>
             </th>
             <th>Product</th>
             <th>Code</th>
@@ -28,13 +30,27 @@
             <th>Rating</th>
           </tr>
         </thead>
-        <tbody *ngFor="let product of products">
-          <td>{{ product.imageUrl }}</td>
-          <td>{{ product.productName }}</td>
-          <td>{{ product.productCode }}</td>
-          <td>{{ product.releaseDate }}</td>
-          <td>{{ product.price }}</td>
-          <td>{{ product.starRating }}</td>
+        <tbody>
+          <tr *ngFor="let product of filteredProducts">
+            <td>
+              <img
+                [src]="product.imageUrl"
+                *ngIf="showImage"
+                [title]="product.productName"
+                [style.width.px]="imageWidth"
+                [style.margin.px]="imageMargin"
+              />
+            </td>
+            <td>{{ product.productName }}</td>
+            <td>
+              {{ product.productCode | lowercase | convertToSpaces: "-" }}
+            </td>
+            <td>{{ product.releaseDate }}</td>
+            <td>
+              {{ product.price | currency: currencyCode:"symbol":"1.2-2" }}
+            </td>
+            <td><star [rating]='product.starRating' (ratingClicked)='onStarsClicked($event)'></star></td>
+          </tr>
         </tbody>
       </table>
     </div>
