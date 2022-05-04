@@ -5,7 +5,7 @@ import {
   IProductService,
   ProductService,
   ProductServiceFlatFile,
-} from '../services/product.service';
+} from './product.service';
 import { Product } from './products.model';
 
 @Component({
@@ -31,7 +31,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   sub!: Subscription;
 
   // Products
-  products: any = [];
+  products: Product[] = [];
 
   ngOnInit(): void {
     // Used for any initialization like some backend calls onInit of this component
